@@ -1,0 +1,17 @@
+2021-07-23 20:54:55,801 - instabot version: 0.117.0 (bot) - INFO - Instabot version: 0.117.0 Started
+2021-07-23 20:54:55,801 - instabot version: 0.117.0 (bot) - DEBUG - Bot imported from C:\Users\supergamer\PycharmProjects\Instagram\venv\lib\site-packages\instabot\bot\bot.py
+2021-07-23 20:54:55,801 - instabot version: 0.117.0 (api_login) - DEBUG - Loading cookies
+2021-07-23 20:54:55,802 - instabot version: 0.117.0 (api_login) - DEBUG - Loading uuids
+2021-07-23 20:54:55,802 - instabot version: 0.117.0 (api_login) - INFO - Recovery from C:\Users\supergamer\PycharmProjects\Instagram/config/lamborify_uuid_and_cookie.json: COOKIE True - UUIDs True - TIMING, DEVICE and ...
+- user-agent=Instagram 117.0.0.28.123 Android (28/9.0; 420dpi; 1080x1920; OnePlus; ONEPLUS A3003; OnePlus3; qcom; en_US; 180322800)
+- phone_id=3f0f0407-917e-4329-8f8b-beda1d680327
+- uuid=585dd8c6-770d-4956-897d-4163e8f754da
+- client_session_id=67bce8a3-e382-4a96-84dc-914a6df63284
+- device_id=android-2853739291d5871f
+2021-07-23 20:54:55,802 - instabot version: 0.117.0 (api_login) - INFO - LOGIN FLOW! Just logged-in: False
+2021-07-23 20:54:56,653 - instabot version: 0.117.0 (api) - DEBUG - POST to endpoint: feed/timeline/ returned response: <Response [200]>
+2021-07-23 20:54:56,942 - instabot version: 0.117.0 (api) - DEBUG - POST to endpoint: feed/reels_tray/ returned response: <Response [200]>
+2021-07-23 20:54:56,943 - instabot version: 0.117.0 (api) - INFO - Logged-in successfully as 'lamborify'!
+2021-07-23 20:54:56,943 - instabot version: 0.117.0 (bot_checkpoint) - DEBUG - Loading Checkpoint file from: C:\Users\supergamer\PycharmProjects\Instagram/config/lamborify.checkpoint
+2021-07-23 20:54:59,945 - instabot version: 0.117.0 (bot_checkpoint) - DEBUG - Saving Checkpoint file to: C:\Users\supergamer\PycharmProjects\Instagram/config/lamborify.checkpoint
+2021-07-23 20:54:59,946 - instabot version: 0.117.0 (bot) - INFO - Total requests: 33
