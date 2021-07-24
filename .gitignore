@@ -1,1 +1,5 @@
-venv
+Vars.py
+venv/
+config/
+.idea/
+__pycache__/
