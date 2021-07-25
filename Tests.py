@@ -5,8 +5,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
-from Vars import username as us, password as ps #pentru orice disperat se uita aici, nu nu am pus parolele direct aici
-# si nu le am dat commit sack dick
 from MainBranch import driver
 
 
