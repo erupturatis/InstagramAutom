@@ -5,12 +5,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
-import os
+import os.path
+from os import path
 import wget
 import time
 import FetchPostData
 from Post_Protocol import Post
 from Hashtags import hs
+from Captions import cap
+from random import randint,seed,random
 
 
 from Vars import username as us, password as ps #pentru orice disperat se uita aici, nu nu am pus parolele direct aici
@@ -63,7 +66,8 @@ def GoToHashtag(keyword):
 
 def GoToExplore():
 
-    el = '//*[@id="react-root"]/section/nav/div[2]/div/div/div[3]/div/div[4]'
+    #el = '//*[@id="react-root"]/section/nav/div[2]/div/div/div[3]/div/div[4]'
+    el = '//*[@id="react-root"]/section/nav/div[2]/div/div/div[3]/div/div[3]'
     ExploreDaddy = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, el))).click()
     time.sleep(3)
     driver.refresh()
@@ -84,7 +88,7 @@ def SelectAndDownloadImgFromPage():
     x = '/html/body/div[5]/div[3]/button'
     lk = '/html/body/div[5]/div[2]/div/article/div[3]/section[2]/div/div/a/span'
     lngt = len(clickableimages)
-    for i in range(0, 15):
+    for i in range(0, min(15,lngt-1)):
         clicknow = clickableimages[i]
         clicknow.click()
         time.sleep(1.2)
@@ -125,24 +129,85 @@ def SelectAndDownloadImgFromPage():
     save_as = os.path.join(path, 'post1' + '.jpg')
     wget.download(imagessrc[remember],save_as)
 
+def GoToFirstPost():
+    time.sleep(3)
 
-def Function1():
+    clickableimages = driver.find_elements_by_class_name('_9AhH0')
+    clicknow = clickableimages[0]
+    clicknow.click()
+
+def GoToLikes():
+    lk = '/html/body/div[5]/div[2]/div/article/div[3]/section[2]/div/div/a/span'
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, lk))).click()
+
+def FollowPeopleFromExploreFirstPage():
+    GoToExplore()
+    GoToPageByPhoto()
+    GoToFirstPost()
+    # bug when video comes in
+    GoToLikes()
+    Follow(40)
+
+def ScrollTo(el):
+    element=el
+    actions = ActionChains(driver)
+    actions.move_to_element(element).perform()
+
+    driver.execute_script("arguments[0].scrollIntoView();", element)
+
+
+def Follow(number):
+    time.sleep(2)
+    toFollow = driver.find_elements_by_class_name('L3NKy')
+    cnt = 0
+    prevNumber = number
+    ta = int(len(toFollow) / 2 + 1)
+    while (number > 0):
+        for i in range(ta, len(toFollow) - 1):
+            number -= 1
+            print(number)
+            time.sleep(random() + 0.1)
+            Fl = toFollow[i]
+            ScrollTo(Fl)
+            time.sleep( random() + 0.1 )
+            Fl.click()
+
+            time.sleep(0.5)
+        if number == prevNumber :
+            return
+        else:
+            prevNumber=number
+        toFollow = driver.find_elements_by_class_name('L3NKy')
+
+def LoginAndExploreChoseAndPost():
     #Goes to explore pick post, picks page, picks post, downloads it, and posts it
+
+    GoToExplore()
+    GoToPageByPhoto()
+    SelectAndDownloadImgFromPage()
+
+    seed(time.time())
+    k=randint(0, 9)
+
+    Post(caption=cap[k], hashtags=hs[0])
+
+
+def LoginAndInit():
     AcceptCookies()
-    InstaLogin(us,ps)
-    GoToExplore()
-    GoToPageByPhoto()
-    SelectAndDownloadImgFromPage()
-    Post(caption="This is and absolute beast", hashtags=hs[0])
+    InstaLogin(us, ps)
+
+LoginAndInit()
+#GoToExplore()
+FollowPeopleFromExploreFirstPage()
 
 
-Function1()
-time.sleep(3)
-for i in range(1,5):
 
-    GoToExplore()
-    time.sleep(1)
-    GoToPageByPhoto()
-    SelectAndDownloadImgFromPage()
-    Post(caption="This is and absolute beast", hashtags=hs[0])
+# time.sleep(3)
+# for i in range(1,5):
+#
+#     GoToExplore()
+#     time.sleep(1)
+#     GoToPageByPhoto()
+#     SelectAndDownloadImgFromPage()
+#     Post(caption="This is and absolute beast", hashtags=hs[0])
 
