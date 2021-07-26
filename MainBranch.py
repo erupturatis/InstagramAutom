@@ -16,7 +16,9 @@ from Captions import cap
 from random import randint,seed,random
 
 
-from Vars import username as us, password as ps #pentru orice disperat se uita aici, nu nu am pus parolele direct aici
+from Vars import usernames as us, passwords as ps , ExplXpath as Exp, HostPages as Hp #pentru orice disperat se uita aici, nu nu am pus parolele direct aici
+from Vars import ProfileXpath as ProfileXp
+from Vars import LogOXpath as LogOXp
 # si nu le am dat commit ,
 # semnat,eugen din trecut
 
@@ -49,8 +51,9 @@ def InstaLogin(Vusername, Vpassword):
 
     not_now = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Not Now")]'))).click()
-    not_now2 = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Not Now")]'))).click()
+    if pageNr==0:
+        not_now2 = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Not Now")]'))).click()
 
 def GoToHashtag(keyword):
     # target the search input field
@@ -67,7 +70,9 @@ def GoToHashtag(keyword):
 def GoToExplore():
 
     #el = '//*[@id="react-root"]/section/nav/div[2]/div/div/div[3]/div/div[4]'
-    el = '//*[@id="react-root"]/section/nav/div[2]/div/div/div[3]/div/div[3]'
+    el = Exp[pageNr]
+          #'//*[@id="react-root"]/section/nav/div[2]/div/div/div[3]/div/div[4]' -lamboxuri
+
     ExploreDaddy = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, el))).click()
     time.sleep(3)
     driver.refresh()
@@ -78,6 +83,13 @@ def GoToPageByPhoto():
     page = '/html/body/div[5]/div[2]/div/article/header/div[2]/div[1]/div/span/a'
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, post))).click()
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, page))).click()
+
+def SavePost(imgsrc):
+    path = os.getcwd()
+    path = os.path.join(path, "Posts")
+
+    save_as = os.path.join(path, 'post1' + '.jpg')
+    wget.download(imgsrc, save_as)
 
 def SelectAndDownloadImgFromPage():
     time.sleep(2)
@@ -122,12 +134,8 @@ def SelectAndDownloadImgFromPage():
             max = (liksconv)
             remember = i
     ##remember is the chose img
-    keyword = "lambo"
-    path = os.getcwd()
-    path = os.path.join(path, "Posts")
+    SavePost(imgsrc=imagessrc[remeber])
 
-    save_as = os.path.join(path, 'post1' + '.jpg')
-    wget.download(imagessrc[remember],save_as)
 
 def GoToFirstPost():
     time.sleep(3)
@@ -136,17 +144,30 @@ def GoToFirstPost():
     clicknow = clickableimages[0]
     clicknow.click()
 
+def LogOut():
+
+    prof = ProfileXp[pageNr]
+    el = LogOXp[pageNr]
+
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, prof))).click()
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, el))).click()
+
 def GoToLikes():
     lk = '/html/body/div[5]/div[2]/div/article/div[3]/section[2]/div/div/a/span'
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, lk))).click()
 
-def FollowPeopleFromExploreFirstPage():
+def FollowFromExplore(number):
     GoToExplore()
     GoToPageByPhoto()
     GoToFirstPost()
     # bug when video comes in
     GoToLikes()
-    Follow(40)
+    Follow(number)
+
+    x = '/ html / body / div[6] / div / div / div[1] / div / div[2]'
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, x))).click()
+    x = '/html/body/div[5]/div[3]/button'
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, x))).click()
 
 def ScrollTo(el):
     element=el
@@ -179,26 +200,73 @@ def Follow(number):
             prevNumber=number
         toFollow = driver.find_elements_by_class_name('L3NKy')
 
-def LoginAndExploreChoseAndPost():
+
+def GetFirstPic():
+    images = driver.find_elements_by_class_name('FFVAD')
+    imagessrc = [image.get_attribute('src') for image in images]
+    imagessrc = imagessrc[:-2]
+    SavePost(imagessrc[0])
+
+def RandomizeCapt_Post():
+    seed(time.time())
+    k = randint(0, 9)
+    k1 = randint(0, 1)
+    Post(caption=cap[k], hashtags=hs[k1],p=pageNr)
+
+def PostFromExplore():
     #Goes to explore pick post, picks page, picks post, downloads it, and posts it
 
     GoToExplore()
     GoToPageByPhoto()
     SelectAndDownloadImgFromPage()
-
-    seed(time.time())
-    k=randint(0, 9)
-
-    Post(caption=cap[k], hashtags=hs[0])
+    RandomizeCapt_Post()
 
 
-def LoginAndInit():
-    AcceptCookies()
-    InstaLogin(us, ps)
 
-LoginAndInit()
-#GoToExplore()
-FollowPeopleFromExploreFirstPage()
+
+
+def PostFromHost():
+    SearchForPage(Hp[pageNr])
+    GetFirstPic()
+    RandomizeCapt_Post()
+
+
+def SearchForPage(page):
+    # target the search input field
+    searchbox = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//input[@placeholder='Search']")))
+    searchbox.clear()
+
+    # search for the hashtag cat
+    keyword = page
+    searchbox.send_keys(keyword)
+    time.sleep(1)
+    searchbox.send_keys(Keys.ENTER)
+    time.sleep(0.5)
+    searchbox.send_keys(Keys.ENTER)
+    time.sleep(1)
+
+def LoginAndInit(k):
+    if pageNr==0:
+        AcceptCookies()
+
+    InstaLogin(us[k], ps[k])
+
+pageNr = 0
+for i in range(0,2):
+    LoginAndInit(pageNr)
+    time.sleep(2)
+    FollowFromExplore(35)
+
+    # if len(Hp[pageNr])==0:
+    #     PostFromExplore()
+    # else:
+    #     PostFromHost()
+
+    LogOut()
+    pageNr+=1
+    time.sleep(3)
+
 
 
 
