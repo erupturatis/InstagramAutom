@@ -19,6 +19,8 @@ from random import randint,seed,random
 from Vars import usernames as us, passwords as ps , ExplXpath as Exp, HostPages as Hp #pentru orice disperat se uita aici, nu nu am pus parolele direct aici
 from Vars import ProfileXpath as ProfileXp
 from Vars import LogOXpath as LogOXp
+from Vars import PagesToFollowFrom as PTFF
+
 # si nu le am dat commit ,
 # semnat,eugen din trecut
 
@@ -32,9 +34,11 @@ driver.get("https://www.instagram.com/")
 ####################################################################################################
 
 
+
 def AcceptCookies():
-    not_now = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Accept All")]'))).click()
+    if first==0:
+        not_now = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Accept All")]'))).click()
 
 def InstaLogin(Vusername, Vpassword):
     username = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[name='username']")))
@@ -51,7 +55,7 @@ def InstaLogin(Vusername, Vpassword):
 
     not_now = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Not Now")]'))).click()
-    if pageNr==0:
+    if first==0:
         not_now2 = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Not Now")]'))).click()
 
@@ -156,9 +160,9 @@ def GoToLikes():
     lk = '/html/body/div[5]/div[2]/div/article/div[3]/section[2]/div/div/a/span'
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, lk))).click()
 
-def FollowFromExplore(number):
-    GoToExplore()
-    GoToPageByPhoto()
+def FollowFromHost(number):
+    k = randint(0,len(PTFF)-1)
+    SearchForPage(PTFF[k])
     GoToFirstPost()
     # bug when video comes in
     GoToLikes()
@@ -170,11 +174,11 @@ def FollowFromExplore(number):
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, x))).click()
 
 def ScrollTo(el):
-    element=el
-    actions = ActionChains(driver)
-    actions.move_to_element(element).perform()
-
-    driver.execute_script("arguments[0].scrollIntoView();", element)
+    el.location_once_scrolled_into_view
+    # element=el
+    # actions = ActionChains(driver)
+    # actions.move_to_element(element).perform()
+    # driver.execute_script("arguments[0].scrollIntoView();", element)
 
 
 def Follow(number):
@@ -184,16 +188,24 @@ def Follow(number):
     prevNumber = number
     ta = int(len(toFollow) / 2 + 1)
     while (number > 0):
+        print (len(toFollow))
         for i in range(ta, len(toFollow) - 1):
-            number -= 1
-            print(number)
-            time.sleep(random() + 0.1)
             Fl = toFollow[i]
-            ScrollTo(Fl)
-            time.sleep( random() + 0.1 )
-            Fl.click()
+            Fl.location_once_scrolled_into_view
+            if number<0:
+                return
+            if(Fl.text == 'Follow'):
+                number -= 1
+                print(number)
 
-            time.sleep(0.5)
+                ScrollTo(Fl)
+                time.sleep(random() + 0.1)
+                Fl.click()
+                time.sleep(random() + 1)
+
+            ScrollTo(Fl)
+            time.sleep(1)
+
         if number == prevNumber :
             return
         else:
@@ -247,35 +259,65 @@ def SearchForPage(page):
     time.sleep(1)
 
 def LoginAndInit(k):
-    if pageNr==0:
+    if first==0:
         AcceptCookies()
 
     InstaLogin(us[k], ps[k])
 
-pageNr = 0
-for i in range(0,2):
-    LoginAndInit(pageNr)
-    time.sleep(2)
-    FollowFromExplore(35)
-
-    # if len(Hp[pageNr])==0:
-    #     PostFromExplore()
-    # else:
-    #     PostFromHost()
-
-    LogOut()
-    pageNr+=1
-    time.sleep(3)
 
 
+def FollowProtocolFull():
+    for t in range(0,10):
+        global pageNr
+        pageNr=1
+        for i in range(0,1):
+
+            if i>0:
+                global first
+                first=1
+            LoginAndInit(pageNr)
+            time.sleep(2)
+            FollowFromHost(30)
+
+            # if len(Hp[pageNr])==0:
+            #     PostFromExplore()
+            # else:
+            #     PostFromHost()
+
+            LogOut()
+            pageNr+=1
+
+            time.sleep(3)
+        t = time.localtime()
+        current_time = time.strftime("%H:%M:%S", t)
+        print(current_time)
+        ToWait = random() + 0.1 + randint(10, 12)
+        time.sleep(ToWait*60)
 
 
-# time.sleep(3)
-# for i in range(1,5):
-#
-#     GoToExplore()
-#     time.sleep(1)
-#     GoToPageByPhoto()
-#     SelectAndDownloadImgFromPage()
-#     Post(caption="This is and absolute beast", hashtags=hs[0])
+def PostProtocolFull():
+    global pageNr
+    for i in range(0, 2):
+
+        if i > 0:
+            global first
+            first = 1
+        LoginAndInit(pageNr)
+        time.sleep(2)
+        if len(Hp[pageNr])==0:
+            PostFromExplore()
+        else:
+            PostFromHost()
+
+        LogOut()
+        pageNr += 1
+
+        time.sleep(3)
+
+
+first=0
+pageNr=0
+
+#PostProtocolFull()
+FollowProtocolFull()
 
