@@ -9,21 +9,21 @@ import os.path
 from os import path
 import wget
 import time
-import FetchPostData
+
 from Post_Protocol import Post
 
 from Hashtags import hs
 from Captions import cap
 
-from random import randint,seed,random
+import random
 
 
 from Vars import usernames as us, passwords as ps, HostPages as Hp
-from Vars import ProfileXpath as ProfileXp
-from Vars import LogOXpath as LogOXp
+# from Vars import ProfileXpath as ProfileXp
+# from Vars import LogOXpath as LogOXp
 from Vars import PagesToFollowFrom as PTFF
 from Vars import PageTypes as PT
-from Vars import ExplXpath as Exp
+
 #pentru orice disperat se uita aici, nu nu am pus parolele direct aici
 # si nu le am dat commit ,
 # semnat,eugen din trecut
@@ -75,14 +75,8 @@ def GoToHashtag(keyword):
     searchbox.send_keys(Keys.ENTER)
     time.sleep(0.5)
     searchbox.send_keys(Keys.ENTER)
+    time.sleep(1)
 
-def GoToExplore():
-
-    el = Exp[pageNr]
-
-    ExploreDaddy = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, el))).click()
-    time.sleep(3)
-    driver.refresh()
 
 
 def GoToPageByPhoto():
@@ -152,22 +146,31 @@ def GoToFirstPost( h ):
     clicknow.click()
 
 def LogOut():
-
-    prof = ProfileXp[pageNr]
-    el = LogOXp[pageNr]
-
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, prof))).click()
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, el))).click()
+    time.sleep(1)
+    choices = driver.find_elements_by_xpath("//span[@class='_2dbep qNELH']")
+    cautat = choices[0]
+    prof = cautat.find_element_by_xpath('..')
+    prof.click()
+    time.sleep(0.5)
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//div[contains(text(), "Log Out")]'))).click()
 
 def GoToLikes():
     time.sleep(1)
     #vcOH2
     T = driver.find_elements_by_class_name('vcOH2')
     if len(T)!=0 :
-        x = '/html/body/div[5]/div[3]/button'
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, x))).click()
+        x = driver.find_element_by_class_name("wpO6b  ")
+        actions = ActionChains(driver)
+        actions.click(x).perform()
+        time.sleep(0.5)
         return 0
-
+    T = driver.find_elements_by_class_name('fXIG0')
+    if len(T) != 0:
+        x = driver.find_element_by_class_name("wpO6b  ")
+        actions = ActionChains(driver)
+        actions.click(x).perform()
+        time.sleep(0.5)
+        return 0
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "zV_Nj"))).click()
     return 1
     # lk = '/html/body/div[5]/div[2]/div/article/div[3]/section[2]/div/div/a/span'
@@ -179,7 +182,8 @@ def GoToLikes():
 
 def FollowFromHost(number):
     Tp = PT[pageNr]
-    k = randint(0,len(PTFF[Tp])-1)
+    k = random.randint(0,len(PTFF[Tp])-1)
+    print(len(PTFF[Tp])-1 , k , "randomnumb")
     SearchForPage(PTFF[Tp][k])
     ind = 0
     GoToFirstPost(ind)
@@ -190,10 +194,16 @@ def FollowFromHost(number):
 
     Follow(number)
 
-    x = '/ html / body / div[6] / div / div / div[1] / div / div[2]'
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, x))).click()
-    x = '/html/body/div[5]/div[3]/button'
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, x))).click()
+    x = driver.find_elements_by_class_name("WaOAr")
+    print(len(x))
+    actions = ActionChains(driver)
+    actions.click(x[1]).perform()
+    time.sleep(0.5)
+
+    x = driver.find_element_by_class_name("wpO6b  ")
+    actions = ActionChains(driver)
+    actions.click(x).perform()
+    time.sleep(0.5)
 
 def ScrollTo(el):
     el.location_once_scrolled_into_view
@@ -223,13 +233,13 @@ def Follow(number):
                 #print(number)
 
                 ScrollTo(Fl)
-                time.sleep(random() + 0.1)
+                time.sleep(random.random() + 0.1)
                 Fl.click()
-                time.sleep(random() + 2.2)
+                time.sleep(random.random() + 2.2)
 
             ScrollTo(Fl)
-            time.sleep(0.2)
-        print(number, "number")
+            time.sleep(1.4+random.random())
+        #print(number, "number")
         B=A
         toFollow = driver.find_elements_by_class_name('L3NKy')
         ta = int(len(toFollow) / 2 + 1)
@@ -240,29 +250,34 @@ def Follow(number):
 
 def GetFirstPic():
     time.sleep(1)
+
+
+    ind = 0
+    GoToFirstPost(ind)
+
+    while GoToLikes() == 0:
+        ind += 1
+        GoToFirstPost(ind)
+
+    x = '/ html / body / div[7] / div / div / div[1] / div / div[2]'
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, x))).click()
+    x = '/html/body/div[6]/div[3]/button'
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, x))).click()
+    time.sleep(1)
+
     images = driver.find_elements_by_class_name('FFVAD')
+    print(len(images))
     imagessrc = [image.get_attribute('src') for image in images]
     imagessrc = imagessrc[:-2]
-    SavePost(imagessrc[0])
+    SavePost(imagessrc[ind])
 
 def RandomizeCapt_Post():
 
     type = PT[pageNr]
-    k = randint(0, len(cap[type])-1)
-    k1 = randint(0, len(hs[type])-1)
+    k = random.randint(0, len(cap[type])-1)
+    k1 = random.randint(0, len(hs[type])-1)
 
     Post(caption=cap[type][k], hashtags=hs[type][k1],p=pageNr)
-
-def PostFromExplore():
-    #Goes to explore pick post, picks page, picks post, downloads it, and posts it
-
-    GoToExplore()
-    GoToPageByPhoto()
-    SelectAndDownloadImgFromPage()
-    RandomizeCapt_Post()
-
-
-
 
 
 def PostFromHost():
@@ -277,14 +292,19 @@ def SearchForPage(page):
         EC.element_to_be_clickable((By.XPATH, "//input[@placeholder='Search']")))
     searchbox.clear()
 
+
+    # _01UL2
     # search for the hashtag cat
     keyword = page
     searchbox.send_keys(keyword)
     time.sleep(1)
-    searchbox.send_keys(Keys.ENTER)
-    time.sleep(0.5)
+    Trash = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "_01UL2")))
+    time.sleep(2)
     searchbox.send_keys(Keys.ENTER)
     time.sleep(1)
+    searchbox.send_keys(Keys.ENTER)
+    time.sleep(0.5)
+
 
 def LoginAndInit(k):
     if first==0:
@@ -296,37 +316,39 @@ def LoginAndInit(k):
 
 def FollowProtocolFull():
     for t in range(0,10):
+        at = time.localtime()
+        current_time = time.strftime("%H:%M:%S", at)
+        print(current_time, " ----------------------------------- ")
         global pageNr
         global Pageln
-
+        pageNr=0
         for i in range(0,Pageln):
 
             if i>0:
                 global first
                 first=1
             LoginAndInit(pageNr)
-            time.sleep(2)
-            FollowFromHost(10)
-
-            # if len(Hp[pageNr])==0:
-            #     PostFromExplore()
-            # else:
-            #     PostFromHost()
+            time.sleep(3)
+            FollowFromHost(30)
 
             LogOut()
             pageNr+=1
+            ToWait = random.random() + 1.5
+            time.sleep(ToWait * 60)
 
             time.sleep(3)
-        t = time.localtime()
-        current_time = time.strftime("%H:%M:%S", t)
-        print(current_time)
-        ToWait = random() + 0.1 + randint(8, 10)
+        at = time.localtime()
+        current_time = time.strftime("%H:%M:%S", at)
+        print(current_time, " ----------------------------------- ")
+        ToWait = random.random() + 0.1 + random.randint(5, 8)
         time.sleep(ToWait*60)
 
+def GetFirst():
+    return first
 
 def PostProtocolFull():
     global pageNr
-    global  Pageln
+    global Pageln
 
     for i in range(0, Pageln):
 
@@ -335,11 +357,7 @@ def PostProtocolFull():
             first = 1
         LoginAndInit(pageNr)
         time.sleep(2)
-        if len(Hp[pageNr])==0:
-            PostFromExplore()
-        else:
-            PostFromHost()
-
+        PostFromHost()
         LogOut()
         pageNr += 1
 
@@ -347,10 +365,10 @@ def PostProtocolFull():
 
 
 first=0
-pageNr=4
+pageNr=0
 
-Pageln = len(us)
-Pageln = 1
+Pageln = len(us)-pageNr
+
 
 #PostProtocolFull()
 FollowProtocolFull()

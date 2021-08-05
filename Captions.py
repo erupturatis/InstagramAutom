@@ -12,10 +12,11 @@ cap = [
         "What’s your thoughts?? Comment down below 💭"
     ],
     [
-        "Cuteness overload",
-        "So cuuute",
-        "Double tap for this beauty",
-        "SO LOVELY"
+        "Cuteness overload ❤",
+        "So cuuute ❤❤❤❤",
+        "Double tap for this beauty ❤❤️",
+        "SO LOVELY 😻❤️",
+        "Beautiful 😻❤️"
     ],
     [
         "Follow @ageless_memes for more "
